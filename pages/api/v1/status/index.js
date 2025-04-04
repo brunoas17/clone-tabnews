@@ -1,37 +1,18 @@
 import { createRouter } from "next-connect";
 import database from "infra/database.js";
-import { InternalServerError, MethodNotAllowedError } from "infra/errors";
+import controller from "infra/controller";
 
 const router = createRouter();
 
 router.get(getHandler);
 
-export default router.handler({
-  onNoMatch: onNoMatchHandler,
-  onError: onErrorHandler
-});
-
-function onNoMatchHandler(request, response) {
-  const publicErrorObject = new MethodNotAllowedError();
-  response.status(publicErrorObject.statusCode).json(publicErrorObject);
-}
-
-function onErrorHandler(error, request, response) {
-  const publicErrorObject = new InternalServerError({
-    cause: error,
-  });
-
-  response.status(publicErrorObject.statusCode).json(publicErrorObject);
-}
+export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
-
   const updatedAt = new Date().toISOString();
 
   const databaseServerVersion = await database.query("SHOW server_version;");
-  const databaseMaxConnections = await database.query(
-    "SHOW max_connections;",
-  );
+  const databaseMaxConnections = await database.query("SHOW max_connections;");
 
   const databaseName = process.env.POSTGRES_DB;
   const databaseOpenedConnection = await database.query({
@@ -50,5 +31,5 @@ async function getHandler(request, response) {
         opened_connections: databaseOpenedConnection.rows[0].count,
       },
     },
-  });    
+  });
 }

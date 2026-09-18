@@ -1,6 +1,5 @@
-
 exports.up = (pgm) => {
-  pgm.createTable('users', {
+  pgm.createTable("users", {
     id: {
       type: "uuid",
       primaryKey: true,
@@ -38,7 +37,7 @@ exports.up = (pgm) => {
       type: "timestamptz",
       notNull: true,
       default: pgm.func("timezone('utc', now())"),
-    }
+    },
   });
 };
 

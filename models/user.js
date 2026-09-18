@@ -18,27 +18,24 @@ async function findOneByUsername(username) {
         LIMIT 
           1;
       `,
-      values: [
-        username
-      ],
+      values: [username],
     });
 
-    if(results.rowCount === 0) {
+    if (results.rowCount === 0) {
       throw new NotFoundError({
         message: `O username informado não foi encontrado no sistema.`,
         action: `Verifique se o username informado está correto e tente novamente.`,
-      })
+      });
     }
-  
+
     return results.rows[0];
   }
 }
 
 async function create(userInputValues) {
+  await validateUnique("email", userInputValues.email);
+  await validateUnique("username", userInputValues.username);
 
-  await validateUnique('email', userInputValues.email);
-  await validateUnique('username', userInputValues.username);
-  
   const newUser = await runInsertQuery(userInputValues);
   return newUser;
 
@@ -72,8 +69,8 @@ async function create(userInputValues) {
         userInputValues.email,
         userInputValues.password,
       ],
-    })
-  
+    });
+
     return results.rows[0];
   }
 }
@@ -81,6 +78,6 @@ async function create(userInputValues) {
 const user = {
   create,
   findOneByUsername,
-}
+};
 
 export default user;
